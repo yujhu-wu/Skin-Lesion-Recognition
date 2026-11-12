@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Image for Skin Detection</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Upload an Image for Skin Detection</h1>
+        <form id="uploadForm" method="post" enctype="multipart/form-data">
+            <label for="fileInput">Choose an image file:</label>
+            <input type="file" id="fileInput" name="file" required>
+            <br>
+            <button type="button" id="captureButton" aria-label="Capture photo using camera">Capture Photo</button>
+            <br><br>
+            <button type="submit" id="uploadButton">Upload</button>
+        </form>
+
+        <!-- Camera preview -->
+        <div id="cameraPreview" class="hidden">
+            <video id="video" width="320" height="240" autoplay></video>
+            <canvas id="canvas" width="320" height="240" class="hidden"></canvas>
+            <button id="snapButton" aria-label="Take photo">Take Photo</button>
+            <button id="retakeButton" class="hidden" aria-label="Retake photo">Retake Photo</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

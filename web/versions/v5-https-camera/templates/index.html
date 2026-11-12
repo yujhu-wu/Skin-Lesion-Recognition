@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Image for Skin Detection</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f2f5;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+
+        input[type="file"] {
+            margin: 10px 0;
+            display: block;
+            text-align: center;
+            width: 100%; 
+            max-width: 250px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #e0e0e0, #b0b0b0); /* 浅灰色渐变背景 */
+            color: black; /* 字体颜色 */
+            border-radius: 2px; /* 圆角 */
+            font-size: 1em; /* 字体大小 */
+        }
+
+        button {
+            padding: 12px 24px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+            width: 70%;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #video,
+        #canvas {
+            width: 48%;
+            margin: 10px 1%;
+        }
+
+        #snapButton,
+        #retakeButton {
+            width: 48%;
+            margin: 10px 1%;
+        }
+
+        #uploadButton {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Upload an Image for Skin Detection</h1>
+        <form id="uploadForm" method="post" enctype="multipart/form-data">
+            <label for="fileInput">Choose an image file:</label>
+            <input type="file" id="fileInput" name="file" required>
+            <br>
+            <button type="button" id="captureButton" aria-label="Capture photo using camera">Capture Photo</button>
+            <br><br>
+            <button type="submit" id="uploadButton">Upload</button>
+        </form>
+
+        <!-- Camera preview -->
+        <div id="cameraPreview" class="hidden">
+            <video id="video" width="320" height="240" autoplay></video>
+            <canvas id="canvas" width="320" height="240" class="hidden"></canvas>
+            <button id="snapButton" aria-label="Take photo">Take Photo</button>
+            <button id="retakeButton" class="hidden" aria-label="Retake photo">Retake Photo</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const fileInput = document.getElementById('fileInput');
+            const captureButton = document.getElementById('captureButton');
+            const cameraPreview = document.getElementById('cameraPreview');
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const snapButton = document.getElementById('snapButton');
+            const retakeButton = document.getElementById('retakeButton');
+            const uploadButton = document.getElementById('uploadButton');
+
+            let stream;
+
+            // Toggle camera preview and file input
+            captureButton.addEventListener('click', () => {
+                fileInput.style.display = 'none'; // Hide file input
+                captureButton.classList.add('hidden'); // Hide Capture Photo button
+                cameraPreview.classList.remove('hidden'); // Show camera preview
+                startCamera();
+            });
+
+            // Start the camera
+            function startCamera() {
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then((mediaStream) => {
+                        stream = mediaStream;
+                        video.srcObject = mediaStream;
+                        video.classList.remove('hidden');
+                        canvas.classList.add('hidden');
+                        snapButton.classList.remove('hidden');
+                        retakeButton.classList.add('hidden');
+                    })
+                    .catch((err) => {
+                        console.error("Error accessing camera: ", err);
+                    });
+            }
+
+            // Take photo
+            snapButton.addEventListener('click', () => {
+                const context = canvas.getContext('2d');
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                video.classList.add('hidden'); // Hide video preview
+                canvas.classList.remove('hidden'); // Show captured image on canvas
+                snapButton.classList.add('hidden'); // Hide Take Photo button
+                retakeButton.classList.remove('hidden'); // Show Retake Photo button
+                stopCamera();
+            });
+
+            // Retake photo
+            retakeButton.addEventListener('click', () => {
+                video.classList.remove('hidden'); // Show video preview
+                canvas.classList.add('hidden'); // Hide captured image on canvas
+                snapButton.classList.remove('hidden'); // Show Take Photo button
+                retakeButton.classList.add('hidden'); // Hide Retake Photo button
+                startCamera(); // Restart the camera
+            });
+
+            // Stop the camera
+            function stopCamera() {
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
+            }
+
+            // Upload the image
+            uploadButton.addEventListener('click', () => {
+                const context = canvas.getContext('2d');
+                canvas.toBlob((blob) => {
+                    const file = new File([blob], 'captured-image.png', { type: 'image/png' });
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    fileInput.files = dataTransfer.files;
+                    fileInput.style.display = 'block'; // Show file input again
+                }, 'image/png');
+            });
+        });
+    </script>
+</body>
+
+</html>
