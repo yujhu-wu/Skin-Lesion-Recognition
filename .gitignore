@@ -1,0 +1,12 @@
+__pycache__/
+.ipynb_checkpoints/
+.conda/
+data/
+assets/
+web/model_files/
+*.pth
+*.pth.tar
+*.ptl
+*.tflite
+*.key
+*.crt
